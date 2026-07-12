@@ -1,45 +1,36 @@
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import type { NamedValue } from '../../lib/metrics';
-import { CHART, compactNum, tooltipStyle } from './chartTheme';
+import { compactNum } from './chartTheme';
 
 interface Props {
   data: NamedValue[];
   format?: (v: number) => string;
 }
 
+/**
+ * Simple HTML/CSS horizontal bar list. Each row shows the category, a
+ * proportional bar, and its value — so the numbers always have context
+ * without needing a hover.
+ */
 export default function HBar({ data, format = compactNum }: Props) {
-  const height = Math.max(data.length * 30 + 12, 60);
+  const max = data.reduce((m, d) => Math.max(m, d.value), 0) || 1;
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <BarChart
-        layout="vertical"
-        data={data}
-        margin={{ top: 0, right: 12, left: 0, bottom: 0 }}
-      >
-        <XAxis type="number" hide />
-        <YAxis
-          type="category"
-          dataKey="name"
-          width={120}
-          tick={{ fill: CHART.axis, fontSize: 12 }}
-          tickLine={false}
-          axisLine={false}
-        />
-        <Tooltip
-          cursor={{ fill: CHART.accentDim }}
-          contentStyle={tooltipStyle}
-          labelStyle={{ color: CHART.axis }}
-          formatter={(value) => [format(Number(value)), ''] as [string, string]}
-        />
-        <Bar dataKey="value" fill={CHART.accent} radius={[0, 3, 3, 0]} maxBarSize={22} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="space-y-1.5">
+      {data.map((d) => (
+        <div key={d.name} className="flex items-center gap-3 text-sm">
+          <span className="w-28 flex-none truncate text-muted" title={d.name}>
+            {d.name}
+          </span>
+          <div className="h-5 flex-1 rounded bg-elevate">
+            <div
+              className="h-full rounded bg-accent"
+              style={{ width: `${Math.max((d.value / max) * 100, 1.5)}%` }}
+            />
+          </div>
+          <span className="w-16 flex-none text-right tabular-nums text-text">
+            {format(d.value)}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
