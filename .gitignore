@@ -1,0 +1,17 @@
+# Misc
+PLAN.md
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+npm-debug.log*
+*.local
+
+# Editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
