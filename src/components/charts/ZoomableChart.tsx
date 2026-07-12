@@ -1,15 +1,45 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Workout } from '../../lib/parse';
+import type { BucketType } from '../../lib/buckets';
 import type { TimeLinePoint, TimePoint } from '../../lib/metrics';
 import ChartCard from '../ChartCard';
 import TimeBar from './TimeBar';
 import TimeLine from './TimeLine';
 
-const MIN_POINTS = 3;
+const DAY = 86_400_000;
+const MIN_SPAN = 2 * DAY;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
+// Finer buckets as the visible window shrinks.
+function pickGranularity(spanDays: number): BucketType {
+  if (spanDays > 540) return 'month';
+  if (spanDays > 70) return 'week';
+  return 'day';
+}
+
+const GRAN_LABEL: Record<BucketType, string> = {
+  day: 'Daily',
+  week: 'Weekly',
+  month: 'Monthly',
+};
+
 type Props =
-  | { title: string; variant: 'bar'; data: TimePoint[]; format?: (v: number) => string; height?: number }
-  | { title: string; variant: 'line'; data: TimeLinePoint[]; format?: (v: number) => string; height?: number };
+  | {
+      title: string;
+      variant: 'bar';
+      workouts: Workout[];
+      compute: (ws: Workout[], t: BucketType) => TimePoint[];
+      format?: (v: number) => string;
+      height?: number;
+    }
+  | {
+      title: string;
+      variant: 'line';
+      workouts: Workout[];
+      compute: (ws: Workout[], t: BucketType) => TimeLinePoint[];
+      format?: (v: number) => string;
+      height?: number;
+    };
 
 function MagnifierIcon({ plus }: { plus: boolean }) {
   return (
@@ -31,31 +61,58 @@ function MagnifierIcon({ plus }: { plus: boolean }) {
 }
 
 export default function ZoomableChart(props: Props) {
-  const { title, data, height = 320 } = props;
-  const len = data.length;
-  const sig = useMemo(
-    () => `${len}|${data[0]?.key ?? ''}|${data[len - 1]?.key ?? ''}`,
-    [data, len],
-  );
-  const [win, setWin] = useState({ start: 0, count: len });
+  const { title, workouts, height = 320 } = props;
+
+  const { tMin, tMax } = useMemo(() => {
+    let a = Infinity;
+    let b = -Infinity;
+    for (const w of workouts) {
+      const t = w.start.getTime();
+      if (t < a) a = t;
+      if (t > b) b = t;
+    }
+    return Number.isFinite(a) ? { tMin: a, tMax: b } : { tMin: 0, tMax: 0 };
+  }, [workouts]);
+
+  const [win, setWin] = useState<[number, number]>([tMin, tMax]);
   const boxRef = useRef<HTMLDivElement>(null);
 
-  // reset the window when the underlying series actually changes (range/exercise)
+  // reset the window whenever the underlying domain changes (range change)
   useEffect(() => {
-    setWin({ start: 0, count: Math.max(len, 1) });
-  }, [sig, len]);
+    setWin([tMin, tMax]);
+  }, [tMin, tMax]);
+
+  const t0 = Math.max(win[0], tMin);
+  const t1 = Math.min(win[1], tMax);
+  const fullSpan = tMax - tMin;
+  const spanDays = Math.max((t1 - t0) / DAY, 0) + 1;
+  const gran = pickGranularity(spanDays);
+  const zoomed = t1 - t0 < fullSpan - 1000;
 
   const applyZoom = useCallback(
     (factor: number, frac: number) => {
-      setWin((prev) => {
-        if (len === 0) return prev;
-        const count = clamp(Math.round(prev.count * factor), Math.min(MIN_POINTS, len), len);
-        const pivot = prev.start + frac * prev.count;
-        const start = clamp(Math.round(pivot - frac * count), 0, Math.max(0, len - count));
-        return { start, count };
+      setWin(([a, b]) => {
+        const A = Math.max(a, tMin);
+        const B = Math.min(b, tMax);
+        const span = B - A;
+        const full = tMax - tMin;
+        if (full <= 0) return [tMin, tMax];
+        const ns = clamp(span * factor, Math.min(MIN_SPAN, full), full);
+        const pivot = A + frac * span;
+        let na = pivot - frac * ns;
+        let nb = na + ns;
+        if (na < tMin) {
+          na = tMin;
+          nb = tMin + ns;
+        }
+        if (nb > tMax) {
+          nb = tMax;
+          na = tMax - ns;
+        }
+        return [na, nb];
       });
     },
-    [len],
+    [tMin, tMax],
   );
 
   // native non-passive wheel listener so preventDefault works (page won't scroll)
@@ -66,27 +123,29 @@ export default function ZoomableChart(props: Props) {
       e.preventDefault();
       const rect = el.getBoundingClientRect();
       const frac = clamp((e.clientX - rect.left) / rect.width, 0, 1);
-      applyZoom(e.deltaY < 0 ? 0.8 : 1.25, frac);
+      applyZoom(e.deltaY < 0 ? 0.7 : 1.4, frac);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [applyZoom]);
 
-  const view = data.slice(win.start, win.start + win.count);
-  const zoomed = win.count < len;
+  const windowWorkouts = useMemo(
+    () => workouts.filter((w) => w.start.getTime() >= t0 && w.start.getTime() <= t1),
+    [workouts, t0, t1],
+  );
+
   const btn =
     'rounded border border-border p-1 text-muted transition hover:text-text disabled:cursor-default disabled:opacity-30';
-
   const controls = (
     <div className="flex gap-1">
-      <button className={btn} title="Zoom out" disabled={win.count >= len} onClick={() => applyZoom(1.4, 0.5)}>
+      <button className={btn} title="Zoom out" disabled={!zoomed} onClick={() => applyZoom(1.8, 0.5)}>
         <MagnifierIcon plus={false} />
       </button>
       <button
         className={btn}
         title="Zoom in"
-        disabled={win.count <= Math.min(MIN_POINTS, len)}
-        onClick={() => applyZoom(0.7, 0.5)}
+        disabled={t1 - t0 <= MIN_SPAN}
+        onClick={() => applyZoom(0.55, 0.5)}
       >
         <MagnifierIcon plus />
       </button>
@@ -97,16 +156,15 @@ export default function ZoomableChart(props: Props) {
     <ChartCard title={title} right={controls}>
       <div ref={boxRef}>
         {props.variant === 'bar' ? (
-          <TimeBar data={view as TimePoint[]} format={props.format} height={height} />
+          <TimeBar data={props.compute(windowWorkouts, gran)} format={props.format} height={height} />
         ) : (
-          <TimeLine data={view as TimeLinePoint[]} format={props.format} height={height} />
+          <TimeLine data={props.compute(windowWorkouts, gran)} format={props.format} height={height} />
         )}
       </div>
-      {zoomed && (
-        <div className="mt-1 text-right text-[11px] text-muted">
-          Showing {win.start + 1}–{win.start + win.count} of {len} · scroll to zoom
-        </div>
-      )}
+      <div className="mt-1 text-right text-[11px] text-muted">
+        {GRAN_LABEL[gran]}
+        {zoomed ? ' · scroll to zoom out' : ' · scroll to zoom in'}
+      </div>
     </ChartCard>
   );
 }

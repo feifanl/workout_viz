@@ -2,12 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Workout } from '../lib/parse';
 import type { Unit } from '../lib/units';
 import { formatVolume, formatWeight } from '../lib/units';
-import {
-  DEFAULT_RANGE,
-  bucketTypeForRange,
-  filterByRange,
-  type RangeKey,
-} from '../lib/buckets';
+import { DEFAULT_RANGE, filterByRange, type RangeKey } from '../lib/buckets';
 import * as M from '../lib/metrics';
 import ChartCard from './ChartCard';
 import StatTile from './StatTile';
@@ -33,7 +28,6 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
   const [exercise, setExercise] = useState(exercises[0] ?? '');
 
   const filtered = useMemo(() => filterByRange(workouts, range), [workouts, range]);
-  const type = bucketTypeForRange(range, filtered);
 
   const fmtVol = (v: number) => formatVolume(v, unit);
   const fmtWt = (v: number) => formatWeight(v, unit);
@@ -41,8 +35,7 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
   const summary = M.summaryStats(filtered, workouts);
   const heatmap = M.consistencyHeatmap(workouts);
   const neglected = M.neglectedMuscles(workouts);
-  const durationSeries = M.setDurationByExercise(filtered, exercise, type);
-  const showDuration = durationSeries.some((p) => p.value > 0);
+  const showDuration = M.hasDurationData(filtered);
   const empty = filtered.length === 0;
 
   return (
@@ -71,10 +64,10 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
       ) : (
         <>
           <section className="space-y-4">
-            <ZoomableChart title="Workout frequency" variant="bar" data={M.workoutFrequency(filtered, type)} format={fmtInt} />
-            <ZoomableChart title="Avg workout duration" variant="line" data={M.workoutDuration(filtered, type)} format={fmtMin} />
-            <ZoomableChart title="Total volume" variant="bar" data={M.volumePerWorkout(filtered, type)} format={fmtVol} />
-            <ZoomableChart title="Total working sets" variant="bar" data={M.setsTotal(filtered, type)} format={fmtInt} />
+            <ZoomableChart title="Workout frequency" variant="bar" workouts={filtered} compute={M.workoutFrequency} format={fmtInt} />
+            <ZoomableChart title="Avg workout duration" variant="line" workouts={filtered} compute={M.workoutDuration} format={fmtMin} />
+            <ZoomableChart title="Total volume" variant="bar" workouts={filtered} compute={M.volumePerWorkout} format={fmtVol} />
+            <ZoomableChart title="Total working sets" variant="bar" workouts={filtered} compute={M.setsTotal} format={fmtInt} />
           </section>
 
           <section className="space-y-4">
@@ -85,11 +78,11 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
               <ExerciseSelect options={exercises} value={exercise} onChange={setExercise} />
             </div>
             <div className="space-y-4">
-              <ZoomableChart title="Volume" variant="bar" data={M.volumePerExercise(filtered, exercise, type)} format={fmtVol} />
-              <ZoomableChart title="Working sets" variant="bar" data={M.setsPerExercise(filtered, exercise, type)} format={fmtInt} />
-              <ZoomableChart title="Best weight" variant="line" data={M.bestWeightPerExercise(filtered, exercise, type)} format={fmtWt} />
+              <ZoomableChart title="Volume" variant="bar" workouts={filtered} compute={(ws, t) => M.volumePerExercise(ws, exercise, t)} format={fmtVol} />
+              <ZoomableChart title="Working sets" variant="bar" workouts={filtered} compute={(ws, t) => M.setsPerExercise(ws, exercise, t)} format={fmtInt} />
+              <ZoomableChart title="Best weight" variant="line" workouts={filtered} compute={(ws, t) => M.bestWeightPerExercise(ws, exercise, t)} format={fmtWt} />
               {showDuration && (
-                <ZoomableChart title="Set duration" variant="bar" data={durationSeries} format={fmtMin} />
+                <ZoomableChart title="Set duration" variant="bar" workouts={filtered} compute={(ws, t) => M.setDurationByExercise(ws, exercise, t)} format={fmtMin} />
               )}
             </div>
           </section>
