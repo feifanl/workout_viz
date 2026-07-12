@@ -49,17 +49,23 @@ export default function About() {
         </ol>
       </Section>
 
-      <Section title="What isn’t supported">
-        <p className="text-muted">
-          Rest-time analysis and body-weight tracking aren’t available - the Hevy
-          CSV export doesn’t include either.
-        </p>
-      </Section>
-
       <Section title="Privacy">
         <p className="text-muted">
           Your data never leaves your browser. The CSV is parsed locally and kept
           only in memory for the current session.
+        </p>
+      </Section>
+
+      <Section title="Support">
+        <p className="text-muted">
+          For inquiries and requests for new features, please email me at{' '}
+          <a
+            href="mailto:feifan.liu@utexas.edu"
+            className="text-accent hover:underline"
+          >
+            feifan.liu@utexas.edu
+          </a>
+          .
         </p>
       </Section>
 
