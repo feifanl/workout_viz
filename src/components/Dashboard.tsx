@@ -70,7 +70,7 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
         </p>
       ) : (
         <>
-          <section className="grid gap-4 md:grid-cols-2">
+          <section className="space-y-4">
             <ZoomableChart title="Workout frequency" variant="bar" data={M.workoutFrequency(filtered, type)} format={fmtInt} />
             <ZoomableChart title="Avg workout duration" variant="line" data={M.workoutDuration(filtered, type)} format={fmtMin} />
             <ZoomableChart title="Total volume" variant="bar" data={M.volumePerWorkout(filtered, type)} format={fmtVol} />
@@ -84,7 +84,7 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
               </h2>
               <ExerciseSelect options={exercises} value={exercise} onChange={setExercise} />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
               <ZoomableChart title="Volume" variant="bar" data={M.volumePerExercise(filtered, exercise, type)} format={fmtVol} />
               <ZoomableChart title="Working sets" variant="bar" data={M.setsPerExercise(filtered, exercise, type)} format={fmtInt} />
               <ZoomableChart title="Best weight" variant="line" data={M.bestWeightPerExercise(filtered, exercise, type)} format={fmtWt} />

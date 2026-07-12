@@ -31,7 +31,7 @@ function MagnifierIcon({ plus }: { plus: boolean }) {
 }
 
 export default function ZoomableChart(props: Props) {
-  const { title, data, height = 240 } = props;
+  const { title, data, height = 320 } = props;
   const len = data.length;
   const sig = useMemo(
     () => `${len}|${data[0]?.key ?? ''}|${data[len - 1]?.key ?? ''}`,
