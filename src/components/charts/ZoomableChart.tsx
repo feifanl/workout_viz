@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Workout } from '../../lib/parse';
-import type { BucketType } from '../../lib/buckets';
+import {
+  DEFAULT_RANGE,
+  filterByRange,
+  type BucketType,
+  type RangeKey,
+} from '../../lib/buckets';
 import type { TimeLinePoint, TimePoint } from '../../lib/metrics';
 import ChartCard from '../ChartCard';
+import RangeSelector from '../RangeSelector';
 import TimeBar from './TimeBar';
 import TimeLine from './TimeLine';
 
@@ -62,17 +68,20 @@ function MagnifierIcon({ plus }: { plus: boolean }) {
 
 export default function ZoomableChart(props: Props) {
   const { title, workouts, height = 320 } = props;
+  const [range, setRange] = useState<RangeKey>(DEFAULT_RANGE);
+
+  const ranged = useMemo(() => filterByRange(workouts, range), [workouts, range]);
 
   const { tMin, tMax } = useMemo(() => {
     let a = Infinity;
     let b = -Infinity;
-    for (const w of workouts) {
+    for (const w of ranged) {
       const t = w.start.getTime();
       if (t < a) a = t;
       if (t > b) b = t;
     }
     return Number.isFinite(a) ? { tMin: a, tMax: b } : { tMin: 0, tMax: 0 };
-  }, [workouts]);
+  }, [ranged]);
 
   const [win, setWin] = useState<[number, number]>([tMin, tMax]);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -130,25 +139,28 @@ export default function ZoomableChart(props: Props) {
   }, [applyZoom]);
 
   const windowWorkouts = useMemo(
-    () => workouts.filter((w) => w.start.getTime() >= t0 && w.start.getTime() <= t1),
-    [workouts, t0, t1],
+    () => ranged.filter((w) => w.start.getTime() >= t0 && w.start.getTime() <= t1),
+    [ranged, t0, t1],
   );
 
   const btn =
     'rounded border border-border p-1 text-muted transition hover:text-text disabled:cursor-default disabled:opacity-30';
   const controls = (
-    <div className="flex gap-1">
-      <button className={btn} title="Zoom out" disabled={!zoomed} onClick={() => applyZoom(1.8, 0.5)}>
-        <MagnifierIcon plus={false} />
-      </button>
-      <button
-        className={btn}
-        title="Zoom in"
-        disabled={t1 - t0 <= MIN_SPAN}
-        onClick={() => applyZoom(0.55, 0.5)}
-      >
-        <MagnifierIcon plus />
-      </button>
+    <div className="flex flex-wrap items-center gap-2">
+      <RangeSelector value={range} onChange={setRange} />
+      <div className="flex gap-1">
+        <button className={btn} title="Zoom out" disabled={!zoomed} onClick={() => applyZoom(1.8, 0.5)}>
+          <MagnifierIcon plus={false} />
+        </button>
+        <button
+          className={btn}
+          title="Zoom in"
+          disabled={t1 - t0 <= MIN_SPAN}
+          onClick={() => applyZoom(0.55, 0.5)}
+        >
+          <MagnifierIcon plus />
+        </button>
+      </div>
     </div>
   );
 

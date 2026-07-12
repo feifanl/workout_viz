@@ -116,7 +116,7 @@ describe('consistency heatmap', () => {
   const now = new Date(2025, 6, 20);
 
   it('counts one workout per active day inside the trailing window', () => {
-    const h = consistencyHeatmap(workouts, now);
+    const h = consistencyHeatmap(workouts, 'All', now);
     expect(h.total).toBe(4);
     expect(h.days.filter((d) => d.count > 0)).toHaveLength(4);
     expect(h.weeks).toBe(Math.ceil(h.days.length / 7));

@@ -4,6 +4,7 @@ import {
   bucketStart,
   buildBuckets,
   type BucketType,
+  type RangeKey,
 } from './buckets';
 import { muscleFor, type MuscleGroup } from './muscles';
 
@@ -271,15 +272,34 @@ export interface HeatmapData {
   weeks: number;
 }
 
-/** 13. Trailing ~12 months of per-day workout counts, Monday-aligned grid. */
+function heatmapStart(allWorkouts: Workout[], range: RangeKey, end: Date): Date {
+  if (range === 'All') {
+    let min = Infinity;
+    for (const w of allWorkouts) {
+      min = Math.min(min, bucketStart(w.start, 'day').getTime());
+    }
+    const raw = Number.isFinite(min) ? new Date(min) : new Date(end.getTime() - 364 * MS_PER_DAY);
+    return bucketStart(raw, 'week');
+  }
+  const raw = new Date(end);
+  switch (range) {
+    case '1W': raw.setDate(raw.getDate() - 6); break;
+    case '1M': raw.setMonth(raw.getMonth() - 1); break;
+    case '3M': raw.setMonth(raw.getMonth() - 3); break;
+    case '6M': raw.setMonth(raw.getMonth() - 6); break;
+    case '1Y': raw.setFullYear(raw.getFullYear() - 1); break;
+  }
+  return bucketStart(raw, 'week'); // Monday align → whole weeks
+}
+
+/** 13. Per-day workout counts over the selected range, Monday-aligned grid. */
 export function consistencyHeatmap(
   allWorkouts: Workout[],
+  range: RangeKey = '1Y',
   now: Date = new Date(),
 ): HeatmapData {
   const end = bucketStart(now, 'day');
-  const startRaw = new Date(end);
-  startRaw.setDate(startRaw.getDate() - 364);
-  const start = bucketStart(startRaw, 'week'); // Monday align → whole weeks
+  const start = heatmapStart(allWorkouts, range, end);
   const startMs = start.getTime();
   const endMs = end.getTime();
 

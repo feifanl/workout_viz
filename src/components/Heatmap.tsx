@@ -81,7 +81,7 @@ export default function Heatmap({ data }: Props) {
       </svg>
 
       <div className="mt-2 flex items-center gap-2 text-xs text-muted">
-        <span>{total} workouts in the last year</span>
+        <span>{total} workouts in range</span>
         <span className="ml-auto flex items-center gap-1">
           Less
           {SCALE.map((c) => (
