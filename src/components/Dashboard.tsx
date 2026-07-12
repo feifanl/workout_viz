@@ -40,6 +40,14 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
+      <div className="flex justify-end">
+        <button
+          onClick={onReset}
+          className="rounded-md border border-border px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-text"
+        >
+          Upload a different file
+        </button>
+      </div>
       {skippedRows > 0 && (
         <p className="text-xs text-muted">{skippedRows} unparseable row(s) were skipped.</p>
       )}
@@ -113,14 +121,6 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
         </>
       )}
 
-      <div className="pt-2">
-        <button
-          onClick={onReset}
-          className="rounded-md border border-border px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-text"
-        >
-          Upload a different file
-        </button>
-      </div>
     </div>
   );
 }
