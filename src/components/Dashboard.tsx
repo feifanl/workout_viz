@@ -94,7 +94,7 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
             </div>
           </section>
 
-          <section className="grid gap-4 md:grid-cols-2">
+          <section className="space-y-4">
             <ChartCard title="Muscle group distribution">
               <HBar data={M.muscleDistribution(filtered)} format={fmtInt} />
             </ChartCard>

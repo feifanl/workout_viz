@@ -17,7 +17,7 @@ export default function HBar({ data, format = compactNum }: Props) {
     <div className="space-y-1.5">
       {data.map((d) => (
         <div key={d.name} className="flex items-center gap-3 text-sm">
-          <span className="w-28 flex-none truncate text-muted" title={d.name}>
+          <span className="w-48 flex-none truncate text-muted" title={d.name}>
             {d.name}
           </span>
           <div className="h-5 flex-1 rounded bg-elevate">
