@@ -7,8 +7,8 @@ interface Props {
 
 const STEPS = [
   'Open the Profile tab, then Settings (gear icon)',
-  'Choose “Export & Import Data” → “Export Workouts”',
-  'Download the CSV from the email Hevy sends you',
+  'Choose “Export & Import Data” -> “Export Workouts”',
+  'Download the CSV',
 ];
 
 export default function UploadZone({ onFile, error }: Props) {
@@ -23,8 +23,7 @@ export default function UploadZone({ onFile, error }: Props) {
     <div className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="text-2xl font-semibold">Visualize your Hevy workouts</h1>
       <p className="mt-2 text-muted">
-        Upload a Hevy CSV export to see your training metrics. Nothing is uploaded
-        anywhere — it all runs in your browser.
+        Upload a Hevy CSV export to see your training metrics.
       </p>
 
       <ol className="mt-6 space-y-2 text-sm text-muted">

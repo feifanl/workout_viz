@@ -2,14 +2,14 @@ const METRICS = [
   'Workout frequency, duration, total volume and total working sets over time',
   'Per-exercise volume, working sets and best weight, plus set duration for timed moves',
   'Muscle group distribution and your favorite exercises and muscles',
-  'Neglected muscles — how long since you last trained each one',
-  'A GitHub-style consistency heatmap for the trailing year',
+  'Neglected muscles - how long since you last trained each one',
+  'A consistency heatmap inspired by GitHub',
 ];
 
 const STEPS = [
   'Open the Profile tab, then Settings (gear icon)',
-  'Choose “Export & Import Data” → “Export Workouts”',
-  'Download the CSV from the email Hevy sends you',
+  'Choose “Export & Import Data” -> “Export Workouts”',
+  'Download the CSV',
 ];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -28,7 +28,7 @@ export default function About() {
         <h1 className="text-2xl font-semibold">About Hevy Viz</h1>
         <p className="mt-2 text-muted">
           A small, fully client-side tool for exploring advanced metrics from your
-          Hevy workout history. Upload a CSV, read your charts, close the tab — no
+          Hevy workout history. Upload a CSV, read your charts, close the tab - no
           account, no backend, no storage.
         </p>
       </div>
@@ -51,7 +51,7 @@ export default function About() {
 
       <Section title="What isn’t supported">
         <p className="text-muted">
-          Rest-time analysis and body-weight tracking aren’t available — the Hevy
+          Rest-time analysis and body-weight tracking aren’t available - the Hevy
           CSV export doesn’t include either.
         </p>
       </Section>
