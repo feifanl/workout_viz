@@ -378,3 +378,16 @@ export function summaryStats(
     weeklyStreak: weeklyStreak(allWorkouts, now),
   };
 }
+
+/** Whole days since the most recent workout; null when there are none. */
+export function daysSinceLastWorkout(
+  workouts: Workout[],
+  now: Date = new Date(),
+): number | null {
+  let last = -Infinity;
+  for (const w of workouts) {
+    last = Math.max(last, bucketStart(w.start, 'day').getTime());
+  }
+  if (!Number.isFinite(last)) return null;
+  return Math.floor((bucketStart(now, 'day').getTime() - last) / MS_PER_DAY);
+}

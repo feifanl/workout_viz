@@ -31,6 +31,14 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
   const neglected = M.neglectedMuscles(workouts);
   const showDuration = M.hasDurationData(workouts);
 
+  const daysSince = M.daysSinceLastWorkout(workouts);
+  const lastWorkout =
+    daysSince === null
+      ? '—'
+      : daysSince === 0
+        ? 'Today'
+        : `${daysSince} day${daysSince === 1 ? '' : 's'} ago`;
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       <div className="flex justify-end">
@@ -46,11 +54,12 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
         <p className="text-xs text-muted">{skippedRows} unparseable row(s) were skipped.</p>
       )}
 
-      <section className="fade-up grid grid-cols-2 gap-4 md:grid-cols-4">
+      <section className="fade-up grid grid-cols-2 gap-4 md:grid-cols-5">
         <StatTile label="Workouts" value={fmtInt(summary.totalWorkouts)} />
         <StatTile label="Volume" value={fmtVol(summary.totalVolumeKg)} />
         <StatTile label="Working sets" value={fmtInt(summary.totalSets)} />
-        <StatTile label="Weekly streak" value={`${summary.weeklyStreak} wk`} />
+        <StatTile label="Weekly streak" value={`${summary.weeklyStreak} week`} />
+        <StatTile label="Last workout" value={lastWorkout} />
       </section>
 
       <HeatmapCard workouts={workouts} />

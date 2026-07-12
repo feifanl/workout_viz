@@ -18,6 +18,7 @@ import {
   consistencyHeatmap,
   exerciseList,
   summaryStats,
+  daysSinceLastWorkout,
 } from '../metrics';
 
 const fixture = readFileSync(
@@ -162,5 +163,16 @@ describe('summary stats', () => {
       mk(new Date(2025, 5, 4)), // gap
     ];
     expect(summaryStats(three, three, now).weeklyStreak).toBe(3);
+  });
+});
+
+describe('days since last workout', () => {
+  it('counts whole days from the most recent workout (last is 5 Jul)', () => {
+    expect(daysSinceLastWorkout(workouts, new Date(2025, 6, 20))).toBe(15);
+    expect(daysSinceLastWorkout(workouts, new Date(2025, 6, 5))).toBe(0);
+  });
+
+  it('returns null for an empty dataset', () => {
+    expect(daysSinceLastWorkout([], new Date(2025, 6, 20))).toBeNull();
   });
 });
