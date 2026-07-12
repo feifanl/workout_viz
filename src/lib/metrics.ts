@@ -225,11 +225,6 @@ export function favoriteExercises(workouts: Workout[]): NamedValue[] {
     .slice(0, 10);
 }
 
-/** 11. Top 5 muscle groups (reuses #9). */
-export function favoriteMuscles(workouts: Workout[]): NamedValue[] {
-  return muscleDistribution(workouts).slice(0, 5);
-}
-
 export interface NeglectedMuscle {
   group: MuscleGroup;
   lastTrained: Date;

@@ -101,16 +101,6 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
             <ChartCard title="Favorite exercises">
               <HBar data={M.favoriteExercises(filtered)} format={fmtInt} />
             </ChartCard>
-            <ChartCard title="Favorite muscles">
-              <div className="space-y-1">
-                {M.favoriteMuscles(filtered).map((m, i) => (
-                  <div key={m.name} className="flex justify-between text-sm">
-                    <span>{i + 1}. {m.name}</span>
-                    <span className="text-muted">{m.value} sets</span>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
             <ChartCard title="Neglected muscles">
               <div className="space-y-1">
                 {neglected.map((n) => (

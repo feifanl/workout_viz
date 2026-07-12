@@ -14,7 +14,6 @@ import {
   workoutFrequency,
   muscleDistribution,
   favoriteExercises,
-  favoriteMuscles,
   neglectedMuscles,
   consistencyHeatmap,
   exerciseList,
@@ -92,12 +91,6 @@ describe('distribution / ranking metrics', () => {
     const f = favoriteExercises(workouts);
     expect(f).toHaveLength(8);
     expect(f[0].value).toBe(3);
-  });
-
-  it('favorite muscles returns top 5 led by Back', () => {
-    const f = favoriteMuscles(workouts);
-    expect(f).toHaveLength(5);
-    expect(f[0]).toEqual({ name: 'Back', value: 4 });
   });
 
   it('exercise list is most-performed first', () => {
