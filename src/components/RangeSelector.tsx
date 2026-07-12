@@ -12,7 +12,7 @@ export default function RangeSelector({ value, onChange }: Props) {
         <button
           key={r}
           className={`rounded px-3 py-1 text-sm transition ${
-            value === r ? 'bg-accent-dim text-accent' : 'text-muted hover:text-text'
+            value === r ? 'bg-elevate text-accent' : 'text-muted hover:text-text'
           }`}
           onClick={() => onChange(r)}
         >

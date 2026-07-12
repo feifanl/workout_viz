@@ -11,6 +11,7 @@ export default {
         muted: '#8b949e',
         accent: '#3ecf8e',
         'accent-dim': '#3ecf8e26',
+        elevate: '#21262d',
       },
       fontFamily: {
         sans: [

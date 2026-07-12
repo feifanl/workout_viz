@@ -30,7 +30,7 @@ export default function UploadZone({ onFile, error }: Props) {
       <ol className="mt-6 space-y-2 text-sm text-muted">
         {STEPS.map((s, i) => (
           <li key={i} className="flex gap-3">
-            <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-accent-dim text-xs text-accent">
+            <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full border border-border text-xs text-muted">
               {i + 1}
             </span>
             <span>{s}</span>

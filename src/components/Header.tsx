@@ -11,7 +11,7 @@ interface Props {
 
 function segClass(active: boolean): string {
   return `px-3 py-1 text-sm rounded-md transition ${
-    active ? 'bg-accent-dim text-accent' : 'text-muted hover:text-text'
+    active ? 'bg-elevate text-accent' : 'text-muted hover:text-text'
   }`;
 }
 
@@ -19,10 +19,7 @@ export default function Header({ view, onView, unit, onUnit }: Props) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2 font-semibold">
-          <span className="text-accent">▲</span>
-          <span>Hevy Viz</span>
-        </div>
+        <div className="font-semibold tracking-tight">Hevy Viz</div>
 
         <nav className="flex items-center gap-1">
           <button className={segClass(view === 'visualize')} onClick={() => onView('visualize')}>
@@ -38,7 +35,7 @@ export default function Header({ view, onView, unit, onUnit }: Props) {
             <button
               key={u}
               className={`rounded px-2 py-0.5 text-sm transition ${
-                unit === u ? 'bg-accent-dim text-accent' : 'text-muted hover:text-text'
+                unit === u ? 'bg-elevate text-accent' : 'text-muted hover:text-text'
               }`}
               onClick={() => onUnit(u)}
             >
