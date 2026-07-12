@@ -14,8 +14,7 @@ import StatTile from './StatTile';
 import RangeSelector from './RangeSelector';
 import Heatmap from './Heatmap';
 import ExerciseSelect from './ExerciseSelect';
-import TimeBar from './charts/TimeBar';
-import TimeLine from './charts/TimeLine';
+import ZoomableChart from './charts/ZoomableChart';
 import HBar from './charts/HBar';
 
 interface Props {
@@ -35,7 +34,6 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
 
   const filtered = useMemo(() => filterByRange(workouts, range), [workouts, range]);
   const type = bucketTypeForRange(range, filtered);
-  const brush = range === 'All';
 
   const fmtVol = (v: number) => formatVolume(v, unit);
   const fmtWt = (v: number) => formatWeight(v, unit);
@@ -73,18 +71,10 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-2">
-            <ChartCard title="Workout frequency">
-              <TimeBar data={M.workoutFrequency(filtered, type)} format={fmtInt} brush={brush} />
-            </ChartCard>
-            <ChartCard title="Avg workout duration">
-              <TimeLine data={M.workoutDuration(filtered, type)} format={fmtMin} brush={brush} />
-            </ChartCard>
-            <ChartCard title="Total volume">
-              <TimeBar data={M.volumePerWorkout(filtered, type)} format={fmtVol} brush={brush} />
-            </ChartCard>
-            <ChartCard title="Total working sets">
-              <TimeBar data={M.setsTotal(filtered, type)} format={fmtInt} brush={brush} />
-            </ChartCard>
+            <ZoomableChart title="Workout frequency" variant="bar" data={M.workoutFrequency(filtered, type)} format={fmtInt} />
+            <ZoomableChart title="Avg workout duration" variant="line" data={M.workoutDuration(filtered, type)} format={fmtMin} />
+            <ZoomableChart title="Total volume" variant="bar" data={M.volumePerWorkout(filtered, type)} format={fmtVol} />
+            <ZoomableChart title="Total working sets" variant="bar" data={M.setsTotal(filtered, type)} format={fmtInt} />
           </section>
 
           <section className="space-y-4">
@@ -95,19 +85,11 @@ export default function Dashboard({ workouts, unit, onReset, skippedRows }: Prop
               <ExerciseSelect options={exercises} value={exercise} onChange={setExercise} />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <ChartCard title="Volume">
-                <TimeBar data={M.volumePerExercise(filtered, exercise, type)} format={fmtVol} brush={brush} />
-              </ChartCard>
-              <ChartCard title="Working sets">
-                <TimeBar data={M.setsPerExercise(filtered, exercise, type)} format={fmtInt} brush={brush} />
-              </ChartCard>
-              <ChartCard title="Best weight">
-                <TimeLine data={M.bestWeightPerExercise(filtered, exercise, type)} format={fmtWt} brush={brush} />
-              </ChartCard>
+              <ZoomableChart title="Volume" variant="bar" data={M.volumePerExercise(filtered, exercise, type)} format={fmtVol} />
+              <ZoomableChart title="Working sets" variant="bar" data={M.setsPerExercise(filtered, exercise, type)} format={fmtInt} />
+              <ZoomableChart title="Best weight" variant="line" data={M.bestWeightPerExercise(filtered, exercise, type)} format={fmtWt} />
               {showDuration && (
-                <ChartCard title="Set duration">
-                  <TimeBar data={durationSeries} format={fmtMin} brush={brush} />
-                </ChartCard>
+                <ZoomableChart title="Set duration" variant="bar" data={durationSeries} format={fmtMin} />
               )}
             </div>
           </section>

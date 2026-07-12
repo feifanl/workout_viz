@@ -1,5 +1,4 @@
 import {
-  Brush,
   CartesianGrid,
   Line,
   LineChart,
@@ -14,16 +13,10 @@ import { CHART, compactNum, tooltipStyle } from './chartTheme';
 interface Props {
   data: TimeLinePoint[];
   format?: (v: number) => string;
-  brush?: boolean;
   height?: number;
 }
 
-export default function TimeLine({
-  data,
-  format = compactNum,
-  brush = false,
-  height = 220,
-}: Props) {
+export default function TimeLine({ data, format = compactNum, height = 220 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
@@ -57,15 +50,6 @@ export default function TimeLine({
           dot={{ r: 3, fill: CHART.dot, strokeWidth: 0 }}
           activeDot={{ r: 4 }}
         />
-        {brush && (
-          <Brush
-            dataKey="label"
-            height={22}
-            travellerWidth={8}
-            stroke={CHART.accent}
-            fill={CHART.panel}
-          />
-        )}
       </LineChart>
     </ResponsiveContainer>
   );
